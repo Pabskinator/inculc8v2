@@ -21,7 +21,7 @@ At Inculc8, we approach automation like a tactical mission. Every node in the sy
 
 Stay tuned as we continue to push the boundaries of what is possible within the digital workspace.
         `,
-        coverImage: '/images/blog/autonomous-workflows.jpg',
+        coverImage: '/images/blog/autonomous-workflows.png',
         date: '2026-01-20',
         author: {
             name: 'Vector',
@@ -51,7 +51,7 @@ When we build components like the "Return to Orbit" terminal or the "Mission Bri
 
 By treating the user interface as a critical piece of hardware, we elevate the digital experience to a professional-grade standard.
         `,
-        coverImage: '/images/blog/tactical-ui.jpg',
+        coverImage: '/images/blog/tactical-ui.png',
         date: '2026-01-18',
         author: {
             name: 'Cipher',
@@ -81,7 +81,7 @@ We've developed a multi-layered security stack specifically for autonomous agent
 
 Security is not an afterthought in automation; it is the foundation upon which trust is built.
         `,
-        coverImage: '/images/blog/ai-security.jpg',
+        coverImage: '/images/blog/ai-security.png',
         date: '2026-01-15',
         author: {
             name: 'Ghost',
