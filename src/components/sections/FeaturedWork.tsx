@@ -1,0 +1,127 @@
+'use client';
+
+import { ChapterLayout } from '@/components/layout/ChapterLayout';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
+import { cn } from '@/utils/cn';
+import { GlareCard } from '@/components/ui/glare-card';
+
+const WORK = [
+    {
+        client: "Nebula",
+        cat: "FinTech",
+        year: "2024",
+        img: "/images/projects/nebula.png"
+    },
+    {
+        client: "Arkitekt",
+        cat: "Real Estate",
+        year: "2023",
+        img: "/images/projects/arkitekt.png"
+    },
+    {
+        client: "Velox",
+        cat: "Automotive",
+        year: "2024",
+        img: "/images/projects/velox.png"
+    }
+];
+
+export function FeaturedWork() {
+    const containerRef = useRef(null);
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ["start end", "end start"]
+    });
+
+    return (
+        <ChapterLayout className="bg-transparent overflow-hidden" id="projects">
+            <div className="relative z-10 w-full h-full flex flex-col justify-center" ref={containerRef}>
+                <div className="px-8 md:px-20 mb-12">
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        className="flex items-center gap-4 text-blue-500 font-mono text-[10px] tracking-[0.5em] uppercase"
+                    >
+                        <span className="w-12 h-px bg-blue-500/30" />
+                        Engagement_History
+                    </motion.div>
+                    <h2 className="text-5xl md:text-7xl font-black text-white mt-4 tracking-tighter uppercase">
+                        MISSION_LOGS
+                    </h2>
+                </div>
+
+                <div className="flex gap-12 px-8 md:px-20 w-full overflow-visible py-10">
+                    {WORK.map((item, i) => (
+                        <ProjectCard key={i} item={item} index={i} scrollYProgress={scrollYProgress} />
+                    ))}
+                </div>
+            </div>
+        </ChapterLayout>
+    );
+}
+
+function ProjectCard({ item, index, scrollYProgress }: any) {
+    const y = useTransform(scrollYProgress, [0, 1], [0, (index + 1) * -40]);
+
+    return (
+        <motion.div
+            className="flex-1 h-[70vh] relative min-w-[450px] group"
+            style={{ y }}
+        >
+            <GlareCard className="relative overflow-hidden bg-[#0a0a0c] flex items-center justify-center border-white/5">
+                {/* Background Image: Tactical Recon */}
+                <motion.div
+                    className="absolute inset-0 grayscale group-hover:grayscale-0 transition-all duration-700 bg-cover bg-center opacity-80 group-hover:opacity-100"
+                    style={{ backgroundImage: `url(${item.img})` }}
+                    whileHover={{ scale: 1.05 }}
+                />
+
+                {/* CRT / Scanline Overlay */}
+                <div className="absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
+
+                {/* Hover Content: Transmission Protocol */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 bg-blue-950/20 backdrop-blur-sm">
+                    <button className="bg-white text-black px-10 py-4 rounded-sm font-mono font-bold uppercase tracking-[0.4em] text-[10px] hover:bg-blue-500 hover:text-white transition-all shadow-2xl relative overflow-hidden group/btn">
+                        <span className="relative z-10">DECRYPT_INTEL</span>
+                        <div className="absolute inset-x-0 bottom-0 h-1 bg-black/20" />
+                    </button>
+                </div>
+
+                {/* Corner Markers */}
+                <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-white/20" />
+                <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-white/20" />
+                <div className="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-white/20" />
+                <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-white/20" />
+            </GlareCard>
+
+            {/* Metadata: Tactical Callout */}
+            <div className="absolute -bottom-16 left-0 pointer-events-none w-full">
+                <div className="flex items-end justify-between">
+                    <div>
+                        <motion.h3
+                            className="text-4xl font-black text-white tracking-tighter uppercase"
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                        >
+                            {item.client}
+                        </motion.h3>
+                        <motion.p
+                            className="text-[9px] font-mono font-bold uppercase tracking-[0.4em] text-blue-500/80 mt-2 flex items-center gap-3"
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true }}
+                        >
+                            <span className="w-6 h-px bg-blue-500/30" />
+                            DEPLOYED // {item.cat} // {item.year}
+                        </motion.p>
+                    </div>
+                    <div className="text-[8px] font-mono text-gray-600 tracking-widest pb-1">
+                        MSN_ID: {item.client.toUpperCase()}_0{index + 1}
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    );
+}
