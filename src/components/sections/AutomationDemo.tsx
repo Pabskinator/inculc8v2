@@ -37,14 +37,23 @@ const METRICS = [
     }
 ];
 
+// Mobile optimizations for Neomorphic Dashboard
+import { useMobile } from '@/hooks/use-mobile';
+
 export function AutomationDemo() {
+    const isMobile = useMobile();
+
     return (
         <ChapterLayout className="bg-transparent" id="metrics">
             <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
 
                 {/* Neomorphic Dashboard Container: Command Center */}
                 <motion.div
-                    className="w-full max-w-6xl aspect-video rounded-sm border border-white/5 bg-black/60 backdrop-blur-3xl p-8 relative overflow-hidden shadow-2xl"
+                    className={cn(
+                        "w-full max-w-6xl min-h-0 md:min-h-[600px] md:aspect-video rounded-sm border border-white/5 relative overflow-hidden shadow-2xl p-4 md:p-8",
+                        // Mobile: Solid dark (fast) + Auto Height, Desktop: Blur (premium)
+                        "bg-black/90 h-auto md:bg-black/60 md:backdrop-blur-3xl"
+                    )}
                     initial={{ scale: 0.9, opacity: 0, rotateX: 10 }}
                     whileInView={{ scale: 1, opacity: 1, rotateX: 0 }}
                     transition={{ duration: 1.2, ease: "easeOut" }}
@@ -69,7 +78,7 @@ export function AutomationDemo() {
                     </div>
 
                     {/* Dynamic Data Grid */}
-                    <div className="grid grid-cols-4 gap-6 h-[65%]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 relative z-10 h-auto md:h-[80%] content-start md:content-stretch">
                         {METRICS.map((metric, i) => (
                             <MetricCard key={i} metric={metric} />
                         ))}
@@ -112,7 +121,7 @@ function MetricCard({ metric }: { metric: typeof METRICS[0] }) {
 
             {/* Dynamic Charts */}
             <div className="h-24 flex items-end justify-between gap-1 opacity-40 group-hover:opacity-80 transition-opacity">
-                {scrolled && [...Array(12)].map((_, j) => (
+                {scrolled && [...Array(6)].map((_, j) => (
                     <motion.div
                         key={j}
                         className={cn(

@@ -47,7 +47,7 @@ export function Services() {
                         >
                             Operational_Asset_Class
                         </motion.span>
-                        <h2 className="text-6xl md:text-8xl font-black mb-8 leading-[0.9] tracking-tighter text-white uppercase">
+                        <h2 className="text-4xl md:text-8xl font-black mb-8 leading-[0.9] tracking-tighter text-white uppercase">
                             <motion.span
                                 initial={{ opacity: 0, y: 100 }}
                                 animate={hasEntered ? { opacity: 1, y: 0 } : { opacity: 0, y: 100 }}

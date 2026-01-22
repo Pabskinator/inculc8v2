@@ -2,7 +2,7 @@
 
 import { ChapterLayout } from '@/components/layout/ChapterLayout';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { cn } from '@/utils/cn';
 import { GlareCard } from '@/components/ui/glare-card';
 
@@ -31,13 +31,14 @@ export function FeaturedWork() {
     const containerRef = useRef(null);
     const { scrollYProgress } = useScroll({
         target: containerRef,
-        offset: ["start end", "end start"]
+        offset: ["start end", "end start"],
+        layoutEffect: false
     });
 
     return (
-        <ChapterLayout className="bg-transparent overflow-hidden" id="projects">
-            <div className="relative z-10 w-full h-full flex flex-col justify-center" ref={containerRef}>
-                <div className="px-8 md:px-20 mb-12">
+        <ChapterLayout className="bg-transparent overflow-visible 2xl:overflow-hidden" id="projects">
+            <div className="relative z-10 w-full h-auto 2xl:h-full flex flex-col justify-start 2xl:justify-center pt-32 2xl:pt-0" ref={containerRef}>
+                <div className="px-8 md:px-20 mb-24">
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
@@ -51,7 +52,7 @@ export function FeaturedWork() {
                     </h2>
                 </div>
 
-                <div className="flex gap-12 px-8 md:px-20 w-full overflow-visible py-10">
+                <div className="flex flex-col 2xl:flex-row gap-16 2xl:gap-12 px-6 md:px-20 w-full max-w-[100vw] overflow-hidden 2xl:overflow-visible pb-24 pt-10 2xl:pb-32">
                     {WORK.map((item, i) => (
                         <ProjectCard key={i} item={item} index={i} scrollYProgress={scrollYProgress} />
                     ))}
@@ -61,15 +62,28 @@ export function FeaturedWork() {
     );
 }
 
+// Check for mobile/tablet via window matchMedia to disable parallax
+function useIsTabletOrMobile() {
+    const [isSmall, setIsSmall] = useState(false);
+    useEffect(() => {
+        const check = () => setIsSmall(window.innerWidth < 1536); // Match 2xl breakpoint
+        check();
+        window.addEventListener('resize', check);
+        return () => window.removeEventListener('resize', check);
+    }, []);
+    return isSmall;
+}
+
 function ProjectCard({ item, index, scrollYProgress }: any) {
+    const isSmall = useIsTabletOrMobile();
     const y = useTransform(scrollYProgress, [0, 1], [0, (index + 1) * -40]);
 
     return (
         <motion.div
-            className="flex-1 h-[70vh] relative min-w-[450px] group"
-            style={{ y }}
+            className="flex-none w-full h-auto 2xl:flex-1 2xl:w-auto 2xl:first:ml-0 2xl:h-[70vh] 2xl:min-w-[450px] group"
+            style={{ y: isSmall ? 0 : y }}
         >
-            <GlareCard className="relative overflow-hidden bg-[#0a0a0c] flex items-center justify-center border-white/5">
+            <GlareCard className="relative overflow-hidden bg-[#0a0a0c] flex items-center justify-center border-white/5 w-full aspect-square 2xl:aspect-auto 2xl:h-full">
                 {/* Background Image: Tactical Recon */}
                 <motion.div
                     className="absolute inset-0 grayscale group-hover:grayscale-0 transition-all duration-700 bg-cover bg-center opacity-80 group-hover:opacity-100"
@@ -96,7 +110,7 @@ function ProjectCard({ item, index, scrollYProgress }: any) {
             </GlareCard>
 
             {/* Metadata: Tactical Callout */}
-            <div className="absolute -bottom-16 left-0 pointer-events-none w-full">
+            <div className="relative mt-6 2xl:absolute 2xl:-bottom-16 2xl:mt-0 left-0 pointer-events-none w-full">
                 <div className="flex items-end justify-between">
                     <div>
                         <motion.h3

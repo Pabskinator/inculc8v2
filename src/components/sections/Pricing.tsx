@@ -78,7 +78,7 @@ function PricingCard({ plan, index }: { plan: typeof PLANS[0], index: number }) 
             )}
         >
             <GlareCard className={cn(
-                "relative p-12 flex flex-col h-full rounded-sm",
+                "relative p-6 md:p-8 flex flex-col h-full rounded-sm overflow-visible", // overflow-visible to prevent clip
                 plan.popular ? "bg-[#050510] border-blue-500/30" : "bg-black/40 border-white/5"
             )}>
                 {/* Tactical Marker Badge */}
