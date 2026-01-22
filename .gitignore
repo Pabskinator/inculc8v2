@@ -34,7 +34,7 @@ yarn-error.log*
 next-env.d.ts
 
 # agentic
-.agent/
+# .agent/
 .gemini/
 
 # potential redundant directories created during development

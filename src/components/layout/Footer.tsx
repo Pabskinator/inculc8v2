@@ -73,7 +73,7 @@ export function Footer() {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="pt-8 border-t border-white/5 flex flex-col sm:row items-center justify-between gap-6">
+                <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-6 text-[10px] font-mono text-white/20 uppercase tracking-widest">
                         <span>© {currentYear} INCULC8_STUDIOS</span>
                         <span className="hidden sm:inline">//</span>

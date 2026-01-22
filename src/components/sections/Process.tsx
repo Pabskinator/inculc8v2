@@ -45,7 +45,8 @@ export function Process() {
     const containerRef = useRef(null);
     const { scrollYProgress } = useScroll({
         target: containerRef,
-        offset: ["start end", "end start"]
+        offset: ["start end", "end start"],
+        layoutEffect: false
     });
 
     return (

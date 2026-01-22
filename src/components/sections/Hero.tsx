@@ -7,7 +7,8 @@ export function Hero() {
     const containerRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
         target: containerRef,
-        offset: ["start start", "end start"]
+        offset: ["start start", "end start"],
+        layoutEffect: false
     });
 
     const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);

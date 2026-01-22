@@ -50,14 +50,14 @@ export default function ScrollToTopSpaceship() {
         <AnimatePresence>
             {isVisible && (
                 <motion.div
-                    className="fixed bottom-8 right-8 z-[100]"
+                    className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[100]"
                     initial={{ opacity: 0, scale: 0.9, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9, y: 10 }}
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 >
                     <button
-                        className="relative group flex flex-col items-center justify-center px-6 py-4 bg-black/80 backdrop-blur-xl border border-cyan-500/20 overflow-hidden transition-all duration-300 hover:border-cyan-400 hover:shadow-[0_0_30px_rgba(6,182,212,0.3)] rounded-sm"
+                        className="relative group flex flex-col items-center justify-center px-2 py-2 md:px-6 md:py-4 bg-black/80 backdrop-blur-xl border border-cyan-500/20 overflow-hidden transition-all duration-300 hover:border-cyan-400 hover:shadow-[0_0_30px_rgba(6,182,212,0.3)] rounded-full md:rounded-sm scale-75 md:scale-100 origin-bottom-right"
                         onMouseEnter={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
                         onClick={handleScrollToTop}

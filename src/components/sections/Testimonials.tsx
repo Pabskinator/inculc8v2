@@ -52,96 +52,143 @@ const REVIEWS = [
     }
 ];
 
-function MarqueeRow({ reviews, speed = 60, reverse = false }: { reviews: typeof REVIEWS, speed?: number, reverse?: boolean }) {
+// Firefox Detection Hook
+function useIsFirefox() {
+    const [isFirefox, setIsFirefox] = useState(false);
+    useEffect(() => {
+        setIsFirefox(typeof navigator !== 'undefined' && /firefox/i.test(navigator.userAgent));
+    }, []);
+    return isFirefox;
+}
+
+function MarqueeRow({ reviews, speed = 60, reverse = false, isFirefox }: { reviews: typeof REVIEWS, speed?: number, reverse?: boolean, isFirefox: boolean }) {
     const [isPaused, setIsPaused] = useState(false);
 
     return (
         <div
-            className="flex overflow-hidden py-4 mask-fade-edges group/marquee"
+            className="flex overflow-hidden py-4 relative group/marquee"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >
+            {/* Gradient Fade Overlays (Cheaper than Mask) */}
+            <div className="pointer-events-none absolute left-0 top-0 h-full w-24 bg-gradient-to-r from-[#030305] to-transparent z-20" />
+            <div className="pointer-events-none absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-[#030305] to-transparent z-20" />
+
             <div
                 className={cn(
-                    "flex gap-6 whitespace-nowrap",
+                    "flex gap-6 whitespace-nowrap will-change-transform",
                     reverse ? "animate-marquee-reverse" : "animate-marquee"
                 )}
                 style={{
                     '--duration': `${speed}s`,
                     '--play-state': isPaused ? 'paused' : 'running',
-                    display: 'flex',
-                    flexShrink: 0
+                    transform: 'translate3d(0,0,0)',
                 } as any}
             >
                 {/* Double the content for a seamless loop with translateY(-50%) */}
                 {[...reviews, ...reviews].map((review, i) => (
-                    <ValidationCard key={`${i}-${review.id}`} review={review} isParentPaused={isPaused} />
+                    <ValidationCard key={`${i}-${review.id}`} review={review} isParentPaused={isPaused} isFirefox={isFirefox} />
                 ))}
             </div>
         </div>
     );
 }
 
-function ValidationCard({ review, isParentPaused }: { review: typeof REVIEWS[0], isParentPaused: boolean }) {
+// Mobile Optimization: Reduces 3D transforms and blur
+import { useMobile } from '@/hooks/use-mobile';
+
+
+function ValidationCard({ review, isParentPaused, isFirefox }: { review: typeof REVIEWS[0], isParentPaused: boolean, isFirefox: boolean }) {
+    const isMobile = useMobile();
+
     return (
-        <div className="w-[450px] flex-shrink-0 px-3 whitespace-normal">
+        <div className="w-[450px] flex-shrink-0 px-3 whitespace-normal transform-gpu">
             <motion.div
-                whileHover={{ scale: 1.05, zIndex: 50 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                whileHover={isFirefox ? undefined : { scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 250, damping: 30 }}
                 className="h-full"
             >
-                <GlowCard
-                    glowColor="purple"
-                    customSize
-                    className={cn(
-                        "h-full bg-black/40 border-white/5 p-8 flex flex-col justify-between group/card transition-all duration-500",
-                        isParentPaused ? "opacity-40 hover:opacity-100 backdrop-blur-md" : "opacity-100"
-                    )}
-                >
-                    <div className="flex justify-between items-start mb-6">
-                        <div className="flex gap-2">
-                            <div className="w-8 h-8 rounded bg-neon-purple/20 flex items-center justify-center border border-neon-purple/30">
-                                <Quote className="w-4 h-4 text-neon-purple" />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">{review.id}</span>
-                                <span className="text-[10px] font-mono text-neon-purple/60 uppercase">VERIFIED_TRANSMISSION</span>
-                            </div>
-                        </div>
-                        <div className="px-3 py-1 rounded-full bg-neon-purple/10 border border-neon-purple/20 text-[9px] font-black text-neon-purple uppercase tracking-tighter">
-                            {review.metric}
-                        </div>
+                {isFirefox ? (
+                    // Firefox Fallback: Simple Card (No Glow/Blur/Heavy Effects)
+                    <div
+                        className={cn(
+                            "relative h-full rounded-2xl border border-white/10 bg-black/60 p-8 flex flex-col justify-between transition-opacity",
+                            isParentPaused ? "opacity-60" : "opacity-100"
+                        )}
+                    >
+                        <CardContent review={review} isFirefox={isFirefox} />
                     </div>
-
-                    <p className="text-xl font-medium text-white/90 leading-snug tracking-tight mb-8">
-                        "{review.quote}"
-                    </p>
-
-                    <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                        <div className="flex flex-col">
-                            <span className="font-bold text-white text-sm uppercase">{review.author}</span>
-                            <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">{review.role}</span>
+                ) : (
+                    // Standard Premium Card
+                    <GlowCard
+                        glowColor="purple"
+                        customSize
+                        className={cn(
+                            "h-full bg-black/60 border-white/5 p-8 flex flex-col justify-between group/card transition-all duration-500",
+                            // Performance: Blur removed to prevent compositor lag during marquee movement
+                            isParentPaused ? "opacity-40 hover:opacity-100" : "opacity-100"
+                        )}
+                    >
+                        <CardContent review={review} isFirefox={isFirefox} />
+                        {/* Technical Overlay */}
+                        <div className="absolute top-2 right-4 opacity-0 group-hover/card:opacity-100 transition-opacity">
+                            <Activity className="w-3 h-3 text-neon-purple/40 animate-pulse" />
                         </div>
-                        <div className="flex gap-1">
-                            {[1, 2, 3].map((s) => (
-                                <div key={s} className="w-1 h-3 bg-neon-purple/40 rounded-full group-hover/card:h-4 transition-all" />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Technical Overlay */}
-                    <div className="absolute top-2 right-4 opacity-0 group-hover/card:opacity-100 transition-opacity">
-                        <Activity className="w-3 h-3 text-neon-purple/40 animate-pulse" />
-                    </div>
-                </GlowCard>
+                    </GlowCard>
+                )}
             </motion.div>
         </div>
+    );
+}
+
+function CardContent({ review, isFirefox }: { review: typeof REVIEWS[0], isFirefox: boolean }) {
+    return (
+        <>
+            <div className="flex justify-between items-start mb-6">
+                <div className="flex gap-2">
+                    <div className="w-8 h-8 rounded bg-neon-purple/20 flex items-center justify-center border border-neon-purple/30">
+                        <Quote className="w-4 h-4 text-neon-purple" />
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">{review.id}</span>
+                        <span className="text-[10px] font-mono text-neon-purple/60 uppercase">VERIFIED_TRANSMISSION</span>
+                    </div>
+                </div>
+                <div className="px-3 py-1 rounded-full bg-neon-purple/10 border border-neon-purple/20 text-[9px] font-black text-neon-purple uppercase tracking-tighter">
+                    {review.metric}
+                </div>
+            </div>
+
+            <p className="text-xl font-medium text-white/90 leading-snug tracking-tight mb-8">
+                "{review.quote}"
+            </p>
+
+            <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                <div className="flex flex-col">
+                    <span className="font-bold text-white text-sm uppercase">{review.author}</span>
+                    <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">{review.role}</span>
+                </div>
+                <div className="flex gap-1">
+                    {[1, 2, 3].map((s) => (
+                        <div
+                            key={s}
+                            className={cn(
+                                "w-1 h-3 bg-neon-purple/40 rounded-full transition-all",
+                                !isFirefox && "group-hover/card:h-4"
+                            )}
+                        />
+                    ))}
+                </div>
+            </div>
+        </>
     );
 }
 
 export function Testimonials() {
     const containerRef = useRef(null);
     const [isReady, setIsReady] = useState(false);
+    const isMobile = useMobile();
+    const isFirefox = useIsFirefox();
 
     useEffect(() => {
         setIsReady(true);
@@ -149,10 +196,9 @@ export function Testimonials() {
 
     const { scrollYProgress } = useScroll({
         target: containerRef,
-        offset: ["start end", "end start"]
+        offset: ["start end", "end start"],
+        layoutEffect: false
     });
-
-    const rotateX = useTransform(scrollYProgress, [0, 1], [15, -15]);
 
     if (!isReady) return <div className="h-screen bg-black" />;
 
@@ -204,17 +250,14 @@ export function Testimonials() {
                     </div>
                 </div>
 
-                {/* Perspective Container */}
-                <motion.div
-                    style={{ rotateX, perspective: 1000 }}
-                    className="relative space-y-4"
-                >
-                    <MarqueeRow reviews={REVIEWS.slice(0, 3)} speed={80} />
-                    <MarqueeRow reviews={REVIEWS.slice(3)} speed={100} reverse />
-                </motion.div>
+                {/* Perspective Container - 3D Tilt Removed for Performance */}
+                <div className="relative space-y-4">
+                    <MarqueeRow reviews={REVIEWS.slice(0, 3)} speed={isFirefox ? 120 : 80} isFirefox={isFirefox} />
+                    <MarqueeRow reviews={REVIEWS.slice(3)} speed={isFirefox ? 140 : 100} reverse isFirefox={isFirefox} />
+                </div>
 
                 {/* Bottom Stats */}
-                <div className="mt-24 max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div className="mt-24 max-w-7xl mx-auto px-6 grid grid-cols-2 xl:grid-cols-4 gap-y-8 gap-x-4 md:gap-8">
                     {[
                         { label: "Partner Satisfaction", val: "100%", sub: "NOMINAL" },
                         { label: "System Uptime", val: "99.9%", sub: "OPTIMAL" },
